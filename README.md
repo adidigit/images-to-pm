@@ -13,3 +13,10 @@ this is done for 1 file for 1 channel, need to be done for all angles and all ch
 4. Geo data - use the script [eos2dump](https://hdfeos.org/software/eosdump.php) to extract the laitutude and longtitude from hdd file by   
 ``` ./eos2dump -vcm2 ./levelb2/MISR_AM1_GRP_ELLIPSOID_GM_P002_O112397_AA_F03_0024.hdf BlueBand all > lon.txt```  
 ```./eos2dump -vcm1 ./levelb2/MISR_AM1_GRP_ELLIPSOID_GM_P002_O112397_AA_F03_0024.hdf BlueBand all > lat.txt```
+.....https://hdfeos.org/zoo/NSIDC/AMSR_E_L3_DailyLand_V06_20050118.hdf.py...
+
+misr downlad data interafces:
+
+1.https://l0dup05.larc.nasa.gov/cgi-bin/MISR/main.cgi
+
+https://search.earthdata.nasa.gov/search
