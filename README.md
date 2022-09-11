@@ -20,3 +20,10 @@ misr downlad data interafces:
 1.https://l0dup05.larc.nasa.gov/cgi-bin/MISR/main.cgi
 
 https://search.earthdata.nasa.gov/search
+
+
+## Data preperation
+
+1. match_pm_to_images
+2. prepare_image_crops_around_pm
+3. use torch dataset in your training process.
