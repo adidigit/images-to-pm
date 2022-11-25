@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="350b5fae-2c0d-4a10-a5a4-3684838f7c99" name="lab">
+        <fileTransfer rootFolder="/home/adiraz" accessType="SFTP" host="132.68.58.178" port="22" sshConfigId="c990301a-41d2-454a-af4f-85b6677ea249" sshConfig="adiraz@132.68.58.178:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
