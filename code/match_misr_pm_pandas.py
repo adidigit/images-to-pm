@@ -21,13 +21,14 @@ def match_misr_pm_data(year):
         pm_val = p['arithmetic_mean']
         date = p['date_local'] 
         path_pixels = p['pm_pixels_location']
+        print(p)
         for path in path_pixels.keys():
             all_relevant_images = misr_df.loc[(misr_df['date'] == date) & (misr_df['path'] == path),'file_name']
             if len(all_relevant_images)> 0 :
-                all_matches.append({'pm_val' : pm_val, 'images' : list(all_relevant_images)})
+                all_matches.append({'pm_data' : dict(p), 'images' : list(all_relevant_images)})
         return all_relevant_images
 
-    pm_data['pm_pixel_location'] = np.empty((len(pm_data), 0)).tolist()
+    pm_data['pm_pixels_location'] = np.empty((len(pm_data), 0)).tolist()
     all_sites = pm_data['site_number'].unique()
     paths_per_site = {}
     all_misr_available_paths = misr_df['path'].unique()
@@ -38,7 +39,7 @@ def match_misr_pm_data(year):
         all_path_data = dict.fromkeys(all_misr_available_paths)
         for path in all_misr_available_paths:
             try:
-                site_pixel_location = mtk.latlon_to_bls(path, resolution, float(lat),float(lon))
+                site_pixel_location = mtk.latlon_to_bls(int(path), resolution, float(lat),float(lon))
                 all_path_data[path] = site_pixel_location
             except:
                 continue

@@ -14,9 +14,8 @@ def find_nearest(array, value):
     return idxs
 
 
-def get_image_around_pm_measurement(pm_loc, image_data):
-    image_file = image_data['file']['file_name']
-    block_id = image_data['block']
+def get_image_around_pm_measurement(pm_loc, image_file):
+    block_id = image_file['block']
     misr = MISR_Data(image_file)
     images, latitude, longitude = misr.load_block(block_id)
     # latitude and lingtidue are provided in full resolution
@@ -40,10 +39,13 @@ def get_image_around_pm_measurement(pm_loc, image_data):
     return all_channels_images
 
 
+year = 2010
+pm_data_types_options = ['row', 'daily']
+pm_data_type = 'row'
 
-matches_pm_images_file = '/Users/adirazgoldfarb/Yoav Shechner/images_to_pm/matches_pm_misr.json'
-crops_output_foler = '/Users/adirazgoldfarb/Yoav Shechner/images_to_pm/crops'
-matches_pm_crops_file = '/Users/adirazgoldfarb/Yoav Shechner/images_to_pm/matches_pm_misr_crops.json'
+matches_pm_images_file = '/home/adiraz/adiraz/misr_data/output/pm_misr_matches_{0}.json'.format(year)
+crops_output_foler = '/home/adiraz/adiraz/misr_data/output/crops/{0}'.format(year)
+matches_pm_crops_file = '/home/adiraz/adiraz/misr_dataadiraz/output/crops_and_pm_values/crops_and_pm_values_{0}.json'.format(year)
 
 os.makedirs(crops_output_foler,exist_ok=True)
 with open(matches_pm_images_file) as f:
@@ -52,14 +54,17 @@ with open(matches_pm_images_file) as f:
 pm_crops_matches = []
 for match_idx , pm_image_match in enumerate(pm_images_matches):
     pm_data = pm_image_match['pm_data']
-    pm_label = pm_data['sample_measurement']
+    if pm_data_type == 'row':
+        pm_label = pm_data['sample_measurement']
+    if pm_data_type == 'daily':
+        pm_label = pm_data['arithmetic_mean']
     if pm_label is None:
         continue
     pm_loc = {'latitude' : pm_data['latitude'], 'longitude': pm_data['longitude']}
-    image_data = pm_image_match['image_data']
-    image_file_name = os.path.basename(image_data['file']['file_name']).split('.')[0]
-
-    image = get_image_around_pm_measurement(pm_loc,image_data)
+    images_data = pm_image_match['images']
+    for image_file in images_data:
+        image_file_name = image_file.split('.')[0]
+        image = get_image_around_pm_measurement(pm_loc,image_file)
     if len(image) > 0 :
         crop_file_name = os.path.join(crops_output_foler,"{:06}".format(match_idx) + '_' + image_file_name  +'.tiff')
         image[0].save(crop_file_name, format="tiff", append_images=[image[1],image[2],image[3]], save_all=True, duration=500, loop=0)
