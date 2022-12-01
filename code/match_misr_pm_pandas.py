@@ -21,12 +21,14 @@ def match_misr_pm_data(year):
         pm_val = p['arithmetic_mean']
         date = p['date_local'] 
         path_pixels = p['pm_pixels_location']
-        print(p)
+        images_per_path = {}
         for path in path_pixels.keys():
-            all_relevant_images = misr_df.loc[(misr_df['date'] == date) & (misr_df['path'] == path),'file_name']
+            all_relevant_images = misr_df.loc[(misr_df['date'] == date) & (misr_df['path'] == path),'file_name']            
             if len(all_relevant_images)> 0 :
-                all_matches.append({'pm_data' : dict(p), 'images' : list(all_relevant_images)})
-        return all_relevant_images
+                images_per_path[path] = list(all_relevant_images)
+        if len(images_per_path.keys()) > 0: # measurment time and location was found in one of the paths
+            all_matches.append({'pm_data' : dict(p), 'images' : images_per_path})
+        return 
 
     pm_data['pm_pixels_location'] = np.empty((len(pm_data), 0)).tolist()
     all_sites = pm_data['site_number'].unique()
