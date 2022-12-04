@@ -41,7 +41,7 @@ def match_misr_pm_data(year):
         all_path_data = dict.fromkeys(all_misr_available_paths)
         for path in all_misr_available_paths:
             try:
-                site_pixel_location = mtk.latlon_to_bls(int(path), resolution, float(lat),float(lon))
+                site_pixel_location = mtk.latlon_to_bls(int(path), resolution, float(lat),float(lon)) # returns block,line,sample
                 all_path_data[path] = site_pixel_location
             except:
                 continue

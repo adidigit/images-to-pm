@@ -44,7 +44,7 @@ class MISR_tabular_data:
     def get_path(self):
         m =  self.misr_file 
         path = m.attr_get('Path_number')
-        return path
+        return str(path)
     
     def get_orbit(self):
         m =  self.misr_file 
