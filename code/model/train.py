@@ -10,6 +10,11 @@ from torch.utils.data import DataLoader
 from torch.nn import MSELoss
 import tqdm
 import sys
+import os
+
+import pydevd_pycharm
+pydevd_pycharm.settrace('132.69.238.136', port=61953, stdoutToServer=True, stderrToServer=True)
+
 import torchvision.transforms as T
 # parser = argparse.ArgumentParser()
 #
