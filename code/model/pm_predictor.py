@@ -12,7 +12,7 @@ class PM_Predictor(nn.Module):
         :return:
         """
         super().__init__()
-        self.model = resnet18(pretrained = True)# pretrained??
+        self.model = resnet18()# pretrained??
         self.model.conv1 = nn.Conv2d(36, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
         self.model.fc = nn.Linear(self.model.fc.in_features,1)
 

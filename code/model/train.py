@@ -11,15 +11,15 @@ from torch.nn import MSELoss
 import tqdm
 import sys
 import os
-
+import time
 import pydevd_pycharm
-pydevd_pycharm.settrace('132.69.238.136', port=61953, stdoutToServer=True, stderrToServer=True)
+pydevd_pycharm.settrace('132.69.242.121', port=51117, stdoutToServer=True, stderrToServer=True)
 
 import torchvision.transforms as T
 # parser = argparse.ArgumentParser()
 #
 #
-# parser.add_argument('--gpu', type=int, default=1, help='GPU to use [default: GPU 0]')
+# parser.add_argument('--gpu', type=int, default=1, help='GPU to use [default: GPU 0]')5
 # parser.add_argument('--batch', type=int, default=32, help='Batch Size during training [default: 32]')
 # parser.add_argument('--epoch', type=int, default=200, help='Epoch to run [default: 50]')
 # parser.add_argument('--output_dir', type=str, default='train_results', help='Directory that stores all training logs and trained models')
@@ -47,11 +47,11 @@ import torchvision.transforms as T
 if __name__ == '__main__':
     torch.manual_seed(42)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    
+    print(device)
     
     params={}
-    batch_size = 8
-    learn_rate = 0.1
+    batch_size = 128
+    learn_rate = 0.4
     num_of_epochs = 100
     image_size = 64
     site = 1302
@@ -59,41 +59,57 @@ if __name__ == '__main__':
     #device = TBD
     
     ### Load dataset 
-    years = [2010, 2011] #range(2010,2021)
+    years = range(2010,2021)
     matches_pm_crops_files=[]
     for year in years:
         matches_pm_crops_file = '/home/adiraz/adiraz/output/crops/crops_and_pm_values_{}.json'.format(year)
         matches_pm_crops_files.append(matches_pm_crops_file)
         
-    ds = PM_Images_Dataset(matches_pm_crops_files,image_size = image_size, site= site)
+    ds = PM_Images_Dataset(matches_pm_crops_files,image_size = image_size)
     split_lengths = [int(len(ds) * 0.9),len(ds) -int(len(ds) * 0.9)]
     ds_train, ds_test = random_split(ds, split_lengths)
-    dl_train = DataLoader(ds_train, batch_size, shuffle=True)
-    dl_test = DataLoader(ds_test, batch_size, shuffle=True)
+    dl_train = DataLoader(ds_train, batch_size, shuffle=True,num_workers = 8)
+    dl_test = DataLoader(ds_test, batch_size, shuffle=True, num_workers= 8)
     
     ### Initialize Model    
-    model = PM_Predictor(params)
+    model = PM_Predictor(params).to(device)
     optimizer = optim.Adam(model.parameters(), lr=learn_rate)#, betas=betas)
     loss_func = MSELoss()
-    model.to(device)
-
-    
     model.train()
     loss_per_epoch = []
 
-    for epoch in range(num_of_epochs):
-        for epoch_idx in range(num_of_epochs):
-            epoch_loss=0
-            with tqdm.tqdm(total=len(dl_train.batch_sampler), file=sys.stdout) as pbar:
-                for batch_idx, (images, labels) in enumerate(dl_train):
+    for epoch_idx, epoch in enumerate(range(num_of_epochs)):
+        epoch_loss = 0
+        with tqdm.tqdm(total=len(dl_train.batch_sampler), file=sys.stdout) as pbar:
+          #  t = time.time()
+            for batch_idx, (images, labels) in enumerate(dl_train):
+           #     elapsed = time.time() - t
+                images = images.to(device)
+                labels = labels.to(device).view((len(labels),1))
+                optimizer.zero_grad()
+                predicted_pm = model(images)
+                #labels = labels.unsqueeze(0)
+                loss = loss_func(predicted_pm,labels)
+                loss.backward()
+                optimizer.step()
+                epoch_loss+=loss
+                pbar.update()
+            #    t=time.time()
+
+            loss_per_epoch=epoch_loss/batch_size
+        print("Epoch loss: ", loss_per_epoch)
+
+        if epoch_idx%10 == 0:
+            total_loss = 0
+            with torch.no_grad():
+                for batch_idx, (images, labels) in enumerate(dl_test):
+                    images = images.to(device)
+                    labels = labels.to(device).view((len(labels),1))
                     optimizer.zero_grad()
                     predicted_pm = model(images)
-                    labels = labels.unsqueeze(0)
                     loss = loss_func(predicted_pm,labels)
-                    print("batch loss: " , loss.data)
-                    loss.backward()
-                    optimizer.step()
-                    epoch_loss+=loss
-                loss_per_epoch=epoch_loss/batch_size
-
+                    print(loss)
     #train()
+
+
+
